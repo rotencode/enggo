@@ -3,6 +3,8 @@ package tools
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"time"
 )
 
@@ -35,7 +37,15 @@ func (crawler *Crawler) getUrl() (url string, err error) {
 }
 
 func (crawler *Crawler) ScrawlerTask() {
+	c_url, _ := crawler.getUrl()
+
+	response, _ := http.Get(c_url)
+	defer response.Body.Close()
+
+	body, _ := ioutil.ReadAll(response.Body)
 	fmt.Println("task begin")
+
+	fmt.Println(body)
 }
 
 func (crawler *Crawler) Start() (err error) {
