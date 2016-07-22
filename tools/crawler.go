@@ -68,6 +68,22 @@ func (crawler *Crawler) CrawlerRegexMatch(str string) {
 func (crawler *Crawler) CrawlerTask() {
 	str, err := crawler.CrawlerRequest()
 	if err == nil {
+
+		//<tr>
+		//<td  class="lm">2015-05-20
+		//<td  class="rgt">17.04
+		//<td  class="rgt">17.49
+		//<td  class="rgt">16.97
+		//<td  class="rgt">17.15
+		//<td  class="rgt rm">265,675,717
+		//<tr>
+		//<td  class="lm">2015-05-19
+		//<td  class="rgt">16.37
+		//<td  class="rgt">17.09
+		//<td  class="rgt">16.35
+		//<td  class="rgt">17.04
+		//<td  class="rgt rm">242,251,271
+
 		re, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
 		re.FindAllStringSubmatch(str, 10)
 	}
