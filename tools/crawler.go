@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"./model"
 )
 
 const (
@@ -19,6 +21,7 @@ type Crawler struct {
 	baseurl      string
 	position     int
 	Market       int
+	cache        map[string]model.ExchangeData
 	url_shanghai string //= "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
 	url_shenzhen string //=  "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
 	//	var urls = []string{"http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d","http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"}
@@ -36,16 +39,35 @@ func (crawler *Crawler) getUrl() (url string, err error) {
 	return
 }
 
-func (crawler *Crawler) ScrawlerTask() {
+func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	c_url, _ := crawler.getUrl()
 
 	response, _ := http.Get(c_url)
 	defer response.Body.Close()
 
-	body, _ := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return
+	}
+
+	str = string(body)
 	fmt.Println("task begin")
 
 	fmt.Println(body)
+}
+func (crawler *Crawler) CrawlerInitCache() {
+
+}
+func (crawler *Crawler) CrawlerRegexMatch(str string) {
+	//	crawler.cache[]
+
+}
+
+func (crawler *Crawler) CrawlerTask() {
+	str, err := crawler.CrawlerRequest()
+	if err == nil {
+
+	}
 }
 
 func (crawler *Crawler) Start() (err error) {
