@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"time"
 
-	"./model"
+	"../model"
 )
 
 const (
@@ -54,6 +55,7 @@ func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	fmt.Println("task begin")
 
 	fmt.Println(body)
+	return
 }
 func (crawler *Crawler) CrawlerInitCache() {
 
@@ -66,7 +68,8 @@ func (crawler *Crawler) CrawlerRegexMatch(str string) {
 func (crawler *Crawler) CrawlerTask() {
 	str, err := crawler.CrawlerRequest()
 	if err == nil {
-
+		re, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
+		re.FindAllStringSubmatch(str, 10)
 	}
 }
 
@@ -79,6 +82,6 @@ func (crawler *Crawler) Start() (err error) {
 		fmt.Println("start error")
 		return
 	}
-	go crawler.ScrawlerTask()
+	go crawler.CrawlerTask()
 	return
 }
