@@ -83,8 +83,9 @@ func (crawler *Crawler) CrawlerTask() {
 		//<td  class="rgt">16.35
 		//<td  class="rgt">17.04
 		//<td  class="rgt rm">242,251,271
-
-		re, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
+		//(-?\d*)
+		fmt.Println(str)
+		re, _ := regexp.Compile(".+class=\"lm\">")
 		re.FindAllStringSubmatch(str, 10)
 	}
 }
