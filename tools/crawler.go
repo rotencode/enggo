@@ -8,6 +8,10 @@ import (
 	"regexp"
 	"time"
 
+	"strings"
+
+	"strconv"
+
 	"../model"
 )
 
@@ -25,10 +29,39 @@ type Crawler struct {
 	cache        map[string]model.ExchangeData
 	url_shanghai string //= "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
 	url_shenzhen string //=  "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
-	//	var urls = []string{"http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d","http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"}
-	//	url_shanghai
-	//	#define SHANGHAI_URL "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
-	//#define SHENZHEN_URL "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
+
+}
+
+func (crawler *Crawler) CrawlerRegexMatch(str string) {
+
+	begin := strings.Index(str, "<td  class=\"lm\">")
+	end := strings.Index(str[begin:], "</table>")
+	pure := str[begin : begin+end]
+
+	items := strings.Split(pure, "<tr>")
+	for _, item := range items {
+		//		fmt.Println("....", item, "---")
+		//r, _ := regexp.Compile(".+<td  class=\"lm\">([d-]+)<td  class=\"rgt\">([d\\.]+)<td  class=\"rgt\">([d\\.]+)<td  class=\"rgt\">([d\\.]+)<td  class=\"rgt\">([d\\.]+)")
+		//r, _ := regexp.Compile(".+<td  class=\"lm\">([\\d-]+)")
+		r, _ := regexp.Compile("<td  class=\"lm\">([\\d-]+)[\\W]+<td  class=\"rgt\">([\\d.]+)[\\W]+<td  class=\"rgt\">([\\d.]+)[\\W]+<td  class=\"rgt\">([\\d.]+)[\\W]+<td  class=\"rgt\">([\\d.]+)[\\W]+<td  class=\"rgt rm\">([\\d,]+)")
+		arr := r.FindStringSubmatch(item)
+		fmt.Println(arr[1], arr[2], ";", arr[3], ";", arr[4], ";", arr[5], ";", arr[6])
+
+		if len(arr) == 7 {
+			// 日期/開市價/最高價/最低價/收市價/成交量
+			var exchange model.ExchangeData
+			exchange.ExchageDate = arr[1]
+			exchange.PriceFirst, _ = strconv.ParseFloat(arr[2], 32)
+			exchange.PriceHigh, _ = strconv.ParseFloat(arr[3], 32)
+			exchange.PriceLow, _ = strconv.ParseFloat(arr[4], 32)
+			exchange.PriceLast, _ = strconv.ParseFloat(arr[5], 32)
+			exchange.ExchangeAmount, _ = strconv.ParseInt(strings.Replace(arr[6], ",", "", -1), 10, 32)
+			//
+			fmt.Println("==exchange===>", exchange)
+			crawler.cache[exchange.ExchageDate] = exchange
+		}
+	}
+
 }
 
 func (crawler *Crawler) getUrl() (url string, err error) {
@@ -60,38 +93,16 @@ func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 func (crawler *Crawler) CrawlerInitCache() {
 
 }
-func (crawler *Crawler) CrawlerRegexMatch(str string) {
-	//	crawler.cache[]
-
-}
-
 func (crawler *Crawler) CrawlerTask() {
 	str, err := crawler.CrawlerRequest()
 	if err == nil {
-
-		//<tr>
-		//<td  class="lm">2015-05-20
-		//<td  class="rgt">17.04
-		//<td  class="rgt">17.49
-		//<td  class="rgt">16.97
-		//<td  class="rgt">17.15
-		//<td  class="rgt rm">265,675,717
-		//<tr>
-		//<td  class="lm">2015-05-19
-		//<td  class="rgt">16.37
-		//<td  class="rgt">17.09
-		//<td  class="rgt">16.35
-		//<td  class="rgt">17.04
-		//<td  class="rgt rm">242,251,271
-		//(-?\d*)
-		fmt.Println(str)
-		re, _ := regexp.Compile(".+class=\"lm\">")
-		re.FindAllStringSubmatch(str, 10)
+		crawler.CrawlerRegexMatch(str)
 	}
 }
 
 func (crawler *Crawler) Start() (err error) {
 	crawler.position = 0
+	crawler.cache = make(map[string]model.ExchangeData)
 	crawler.url_shanghai = "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
 	crawler.url_shenzhen = "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
 	if len(crawler.Stockid) == 0 {
