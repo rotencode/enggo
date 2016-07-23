@@ -32,8 +32,8 @@ type Crawler struct {
 
 }
 
-func (crawler *Crawler) CrawlerRegexMatch(str string) {
-
+func (crawler *Crawler) CrawlerRegexMatch(str string) (hasNext bool) {
+	hasNext = false
 	begin := strings.Index(str, "<td  class=\"lm\">")
 	end := strings.Index(str[begin:], "</table>")
 	pure := str[begin : begin+end]
@@ -61,7 +61,10 @@ func (crawler *Crawler) CrawlerRegexMatch(str string) {
 			crawler.cache[exchange.ExchageDate] = exchange
 		}
 	}
-
+	if len(items) == 200 {
+		hasNext = true
+	}
+	return
 }
 
 func (crawler *Crawler) getUrl() (url string, err error) {
@@ -72,7 +75,19 @@ func (crawler *Crawler) getUrl() (url string, err error) {
 	}
 	return
 }
+func (crawler *Crawler) crawlerSave() {
+	ofile := string("./data/" + crawler.Market)
+	fout, err := os.Create(ofile)
+	defer fout.Close()
+	if err == nil {
+		for k, v := range crawler.cache {
+			fmt.Printf("k=%v, v=%v\n", k, v)
+			fout.WriteString(fmt.Sprintln("%v", v))
 
+		}
+		fmt.Sprintln("%v")
+	}
+}
 func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	c_url, _ := crawler.getUrl()
 
@@ -94,10 +109,16 @@ func (crawler *Crawler) CrawlerInitCache() {
 
 }
 func (crawler *Crawler) CrawlerTask() {
-	str, err := crawler.CrawlerRequest()
-	if err == nil {
-		crawler.CrawlerRegexMatch(str)
+	for {
+		str, err := crawler.CrawlerRequest()
+		if err == nil {
+			hasNext := crawler.CrawlerRegexMatch(str)
+			if !hasNext {
+				crawler.crawlerSave()
+			}
+		}
 	}
+
 }
 
 func (crawler *Crawler) Start() (err error) {
