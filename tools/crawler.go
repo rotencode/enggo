@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
-	"time"
-
 	"strings"
+	"time"
 
 	"strconv"
 
@@ -76,7 +76,7 @@ func (crawler *Crawler) getUrl() (url string, err error) {
 	return
 }
 func (crawler *Crawler) crawlerSave() {
-	ofile := string("./data/" + crawler.Market)
+	ofile := string("./data/" + string(crawler.Market))
 	fout, err := os.Create(ofile)
 	defer fout.Close()
 	if err == nil {
@@ -106,7 +106,10 @@ func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	return
 }
 func (crawler *Crawler) CrawlerInitCache() {
+	dat, _ := ioutil.ReadFile("./buffer.txt")
 
+	str := string(dat)
+	fmt.Println(str)
 }
 func (crawler *Crawler) CrawlerTask() {
 	for {

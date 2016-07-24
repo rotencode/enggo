@@ -2,9 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"time"
 
+	"bufio"
+	"encoding/csv"
 	"io/ioutil"
+	"os"
+
 	"regexp"
 	"strings"
 
@@ -81,8 +86,39 @@ func test() {
 	}
 
 }
+
+func ttt() {
+	// Load a TXT file.
+	f, _ := os.Open("./file")
+
+	// Create a new reader.
+	r := csv.NewReader(bufio.NewReader(f))
+	for {
+		record, err := r.Read()
+		// Stop at EOF.
+		if err == io.EOF {
+			break
+		}
+		// Display record.
+		// ... Display record length.
+		// ... Display all individual elements of the slice.
+		fmt.Println(record)
+		fmt.Println(len(record))
+		for value := range record {
+			fmt.Printf(" %v, %v,\n", value, record[value])
+		}
+	}
+}
+
+//Contents: file.txt
+
+//cat,dog,bird
+//10,20,30,40
+//fish,dog,snake
+//}
 func main() {
-	test()
+	ttt()
+	//	test()
 	fmt.Println("enggo start", string(time.Now().Format("2006-01-02")))
 	var crawler tools.Crawler
 	crawler.Stockid = ""
