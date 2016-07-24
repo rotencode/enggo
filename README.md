@@ -8,4 +8,5 @@ go version
 
 ```
 http://stackoverflow.com/questions/20768511/unmarshal-csv-record-into-struct-in-go
+https://github.com/gocarina/gocsv
 ```
