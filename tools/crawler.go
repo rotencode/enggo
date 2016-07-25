@@ -50,7 +50,7 @@ func (crawler *Crawler) CrawlerRegexMatch(str string) (hasNext bool) {
 		if len(arr) == 7 {
 			// 日期/開市價/最高價/最低價/收市價/成交量
 			var exchange model.ExchangeData
-			exchange.ExchageDate = arr[1]
+			exchange.ExchangeDate = arr[1]
 			exchange.PriceFirst, _ = strconv.ParseFloat(arr[2], 32)
 			exchange.PriceHigh, _ = strconv.ParseFloat(arr[3], 32)
 			exchange.PriceLow, _ = strconv.ParseFloat(arr[4], 32)
@@ -58,7 +58,7 @@ func (crawler *Crawler) CrawlerRegexMatch(str string) (hasNext bool) {
 			exchange.ExchangeAmount, _ = strconv.ParseInt(strings.Replace(arr[6], ",", "", -1), 10, 32)
 			//
 			fmt.Println("==exchange===>", exchange)
-			crawler.cache[exchange.ExchageDate] = exchange
+			crawler.cache[exchange.ExchangeDate] = exchange
 		}
 	}
 	if len(items) == 200 {

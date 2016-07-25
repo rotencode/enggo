@@ -7,20 +7,20 @@ package model
 type ExchangeData struct {
 
 	//交易日期
-	ExchageDate string
+	ExchangeDate string
 
-	//交易量
-	ExchangeAmount int64
-
-	//最高成交价
-	PriceHigh float64
-
-	//最低价格
-	PriceLow float64
-
-	//开盘价
+	//開市價
 	PriceFirst float64
 
-	//收盘价格
+	//最高價
+	PriceHigh float64
+
+	//最低價
+	PriceLow float64
+
+	//收市價
 	PriceLast float64
+
+	//成交量
+	ExchangeAmount int64
 }
