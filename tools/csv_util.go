@@ -14,7 +14,8 @@ func ParseCSVToMap(filename string, items *map[string]model.ExchangeData) {
 
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		//		os.Exit(1)
+		return
 	}
 
 	defer csvfile.Close()
@@ -32,7 +33,8 @@ func ParseCSVToMap(filename string, items *map[string]model.ExchangeData) {
 
 	// sanity check, display to standard output
 	for _, each := range rawCSVdata {
-		fmt.Printf("email : %s and timestamp : %s\n", each[0], each[1])
+		//		fmt.Printf("email : %s and timestamp : %s\n", each[0], each[1])
+		fmt.Println(each)
 	}
 
 	// now, safe to move raw CSV data to struct

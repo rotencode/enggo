@@ -22,14 +22,16 @@ const (
 )
 
 type Crawler struct {
-	Stockid      string
-	url          string
-	baseurl      string
+	Stockid string
+	url     string
+	baseurl string
+	//本地最新的成交记录日期。更新数据从当前日期开始。
+	start_date   string
 	position     int
 	Market       int
 	cache        map[string]model.ExchangeData
-	url_shanghai string //= "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
-	url_shenzhen string //=  "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
+	url_shanghai string //= "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=%s&enddate=%s&num=200&start=%d"
+	url_shenzhen string //=  "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=%s&enddate=%s&num=200&start=%d"
 
 }
 
@@ -91,9 +93,9 @@ func (crawler *Crawler) CrawlerRegexMatch(str string) (hasNext bool) {
 
 func (crawler *Crawler) getUrl() (url string, err error) {
 	if crawler.Market == SHANGHAI {
-		url = fmt.Sprintf(crawler.url_shanghai, crawler.Stockid, string(time.Now().Format("2006-01-02")), crawler.position)
+		url = fmt.Sprintf(crawler.url_shanghai, crawler.Stockid, crawler.start_date, string(time.Now().Format("2006-01-02")), crawler.position)
 	} else {
-		url = fmt.Sprintf(crawler.url_shenzhen, crawler.Stockid, string(time.Now().Format("2006-01-02")), crawler.position)
+		url = fmt.Sprintf(crawler.url_shenzhen, crawler.Stockid, crawler.start_date, string(time.Now().Format("2006-01-02")), crawler.position)
 	}
 	return
 }
@@ -172,9 +174,21 @@ func (crawler *Crawler) CrawlerTask() {
 
 //func ParseCSVToMap(filename string, items *map[string]model.ExchangeData) {
 
-func (crawler *Crawler) init_cache() (err error) {
+func (crawler *Crawler) initCache() (err error) {
 	ParseCSVToMap("./data/"+crawler.Stockid, &crawler.cache)
-	fmt.Println(crawler.cache)
+	if len(crawler.cache) == 0 {
+		crawler.start_date = "1990-01-01"
+	} else {
+		var keys []string
+		for k := range crawler.cache {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		fmt.Println("==========>>>>")
+		fmt.Println(keys[len(keys)-1])
+		fmt.Println("==========>>>>")
+	}
+	//	fmt.Println(crawler.cache)
 	return
 }
 
@@ -184,9 +198,11 @@ func (crawler *Crawler) Start(stockid string, market int) (err error) {
 	fmt.Printf("%+v, %+v", crawler.Market, crawler.Stockid)
 	crawler.position = 0
 	crawler.cache = make(map[string]model.ExchangeData)
-	crawler.url_shanghai = "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
-	crawler.url_shenzhen = "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
-	crawler.init_cache()
+	crawler.url_shanghai = "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=%s&enddate=%s&num=200&start=%d"
+	crawler.url_shenzhen = "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=%s&enddate=%s&num=200&start=%d"
+	crawler.initCache()
+	//	fmt.Println(crawler.getUrl())
+	return
 	if len(crawler.Stockid) == 0 {
 		err = errors.New("stock id should not be none")
 		fmt.Println("start error")
