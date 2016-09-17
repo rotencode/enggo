@@ -113,7 +113,7 @@ func (crawler *Crawler) crawlerSave() {
 		for _, k := range keys {
 			//			fmt.Println(crawler.cache[k].ExchangeDate, " ", crawler.cache[k].PriceFirst, " ", crawler.cache[k].PriceHigh, " ", crawler.cache[k].PriceLow, " ", crawler.cache[k].PriceLast, " ", crawler.cache[k].ExchangeAmount)
 			//			fmt.Printf("k=%v, v=%v\n", k, v)
-			str := fmt.Sprintf("%s %.3f %.3f %.3f %.3f %d\n", crawler.cache[k].ExchangeDate, crawler.cache[k].PriceFirst, crawler.cache[k].PriceHigh, crawler.cache[k].PriceLow, crawler.cache[k].PriceLast, crawler.cache[k].ExchangeAmount)
+			str := fmt.Sprintf("%s,%.3f,%.3f,%.3f,%.3f,%d\n", crawler.cache[k].ExchangeDate, crawler.cache[k].PriceFirst, crawler.cache[k].PriceHigh, crawler.cache[k].PriceLow, crawler.cache[k].PriceLast, crawler.cache[k].ExchangeAmount)
 			fmt.Println(str)
 			fout.WriteString(str)
 			//			fout.WriteString(fmt.Sprintln("",crawler.cache[k].ExchangeDate, " ", crawler.cache[k].PriceFirst, " ", crawler.cache[k].PriceHigh, " ", crawler.cache[k].PriceLow, , " ", crawler.cache[k].PriceLast, " ", crawler.cache[k].ExchangeAmount))
@@ -170,6 +170,14 @@ func (crawler *Crawler) CrawlerTask() {
 
 }
 
+//func ParseCSVToMap(filename string, items *map[string]model.ExchangeData) {
+
+func (crawler *Crawler) init_cache() (err error) {
+	ParseCSVToMap("./data/"+crawler.Stockid, &crawler.cache)
+	fmt.Println(crawler.cache)
+	return
+}
+
 func (crawler *Crawler) Start(stockid string, market int) (err error) {
 	crawler.Market = market
 	crawler.Stockid = stockid
@@ -178,6 +186,7 @@ func (crawler *Crawler) Start(stockid string, market int) (err error) {
 	crawler.cache = make(map[string]model.ExchangeData)
 	crawler.url_shanghai = "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
 	crawler.url_shenzhen = "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"
+	crawler.init_cache()
 	if len(crawler.Stockid) == 0 {
 		err = errors.New("stock id should not be none")
 		fmt.Println("start error")
