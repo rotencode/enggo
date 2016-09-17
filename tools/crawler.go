@@ -90,10 +90,16 @@ func (crawler *Crawler) crawlerSave() {
 }
 func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	c_url, _ := crawler.getUrl()
-
-	response, _ := http.Get(c_url)
+	fmt.Println("\n%s\n", c_url)
+	timeout := time.Duration(120 * time.Second)
+	client := http.Client{
+		Timeout: timeout,
+	}
+	//	client.Get(url)
+	response, h_err := client.Get(c_url)
+	fmt.Println("==============%+v", h_err)
+	//	defer response.Body.Close()
 	defer response.Body.Close()
-
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return
@@ -124,7 +130,10 @@ func (crawler *Crawler) CrawlerTask() {
 
 }
 
-func (crawler *Crawler) Start() (err error) {
+func (crawler *Crawler) Start(stockid string, market int) (err error) {
+	crawler.Market = market
+	crawler.Stockid = stockid
+	fmt.Printf("%+v, %+v", crawler.Market, crawler.Stockid)
 	crawler.position = 0
 	crawler.cache = make(map[string]model.ExchangeData)
 	crawler.url_shanghai = "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=1990-01-02&enddate=%s&num=200&start=%d"

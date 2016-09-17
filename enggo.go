@@ -65,7 +65,7 @@ func test() {
 		if len(arr) == 7 {
 			// 日期/開市價/最高價/最低價/收市價/成交量
 			var exchange model.ExchangeData
-			exchange.ExchageDate = arr[1]
+			exchange.ExchangeDate = arr[1]
 			exchange.PriceFirst, _ = strconv.ParseFloat(arr[2], 32)
 			exchange.PriceHigh, _ = strconv.ParseFloat(arr[3], 32)
 			exchange.PriceLow, _ = strconv.ParseFloat(arr[4], 32)
@@ -73,7 +73,7 @@ func test() {
 			exchange.ExchangeAmount, _ = strconv.ParseInt(strings.Replace(arr[6], ",", "", -1), 10, 32)
 			//
 			fmt.Println("==exchange===>", exchange)
-			cache[exchange.ExchageDate] = exchange
+			cache[exchange.ExchangeDate] = exchange
 
 		}
 		//		for i, sub := range arr {
@@ -116,11 +116,39 @@ func ttt() {
 //10,20,30,40
 //fish,dog,snake
 //}
+func shenzhen() {
+	file, _ := os.Open("./markets/shenzhen")
+	fscanner := bufio.NewScanner(file)
+	for fscanner.Scan() {
+		fmt.Println(fscanner.Text())
+		var crawler tools.Crawler
+		//		crawler.Stockid = ""
+		crawler.Start(fscanner.Text(), tools.SHENZHEN)
+	}
+
+}
+func shanghai() {
+
+	file, _ := os.Open("./markets/shanghai")
+	fscanner := bufio.NewScanner(file)
+	for fscanner.Scan() {
+		fmt.Println(fscanner.Text())
+		var crawler tools.Crawler
+		//		crawler.Stockid = ""
+		crawler.Start(fscanner.Text(), tools.SHANGHAI)
+	}
+	//	 http://www.google.com.hk/finance/historical?q=SHA:600000&startdate=1990-01-02&enddate=2016-09-17&num=200&start=0
+
+}
 func main() {
-	ttt()
+	//	ttt()
 	//	test()
 	fmt.Println("enggo start", string(time.Now().Format("2006-01-02")))
-	var crawler tools.Crawler
-	crawler.Stockid = ""
-	crawler.Start()
+
+	go shenzhen()
+	//	shanghai()
+	for {
+		time.Sleep(100 * time.Second)
+	}
+
 }
