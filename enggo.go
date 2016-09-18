@@ -139,8 +139,8 @@ func main() {
 	//	test()
 	fmt.Println("enggo start", string(time.Now().Format("2006-01-02")))
 
-	go shenzhen()
-	//	shanghai()
+	//	go shenzhen()
+	go shanghai()
 	for {
 		time.Sleep(100 * time.Second)
 	}

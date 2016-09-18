@@ -193,6 +193,9 @@ func (crawler *Crawler) initCache() (err error) {
 }
 
 func (crawler *Crawler) Start(stockid string, market int) (err error) {
+	if len(stockid) == 0 {
+		return
+	}
 	crawler.Market = market
 	crawler.Stockid = stockid
 	fmt.Printf("%+v, %+v", crawler.Market, crawler.Stockid)
