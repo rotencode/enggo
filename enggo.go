@@ -110,20 +110,15 @@ func ttt() {
 	}
 }
 
-//Contents: file.txt
-
-//cat,dog,bird
-//10,20,30,40
-//fish,dog,snake
-//}
 func shenzhen() {
 	file, _ := os.Open("./markets/shenzhen")
 	fscanner := bufio.NewScanner(file)
 	for fscanner.Scan() {
 		fmt.Println(fscanner.Text())
 		var crawler tools.Crawler
-		//		crawler.Stockid = ""
 		crawler.Start(fscanner.Text(), tools.SHENZHEN)
+		time.Sleep(30 * time.Second)
+
 	}
 
 }
@@ -134,7 +129,6 @@ func shanghai() {
 	for fscanner.Scan() {
 		fmt.Println(fscanner.Text())
 		var crawler tools.Crawler
-		//		crawler.Stockid = ""
 		crawler.Start(fscanner.Text(), tools.SHANGHAI)
 	}
 	//	 http://www.google.com.hk/finance/historical?q=SHA:600000&startdate=1990-01-02&enddate=2016-09-17&num=200&start=0

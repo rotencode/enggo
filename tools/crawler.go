@@ -202,7 +202,7 @@ func (crawler *Crawler) Start(stockid string, market int) (err error) {
 	crawler.url_shenzhen = "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=%s&enddate=%s&num=200&start=%d"
 	crawler.initCache()
 	//	fmt.Println(crawler.getUrl())
-	return
+	//	return
 	if len(crawler.Stockid) == 0 {
 		err = errors.New("stock id should not be none")
 		fmt.Println("start error")
