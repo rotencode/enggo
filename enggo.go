@@ -117,7 +117,7 @@ func shenzhen() {
 		fmt.Println(fscanner.Text())
 		var crawler tools.Crawler
 		crawler.Start(fscanner.Text(), tools.SHENZHEN)
-		time.Sleep(30 * time.Second)
+		//		time.Sleep(30 * time.Second)
 
 	}
 

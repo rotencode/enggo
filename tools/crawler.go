@@ -203,11 +203,18 @@ func (crawler *Crawler) Start(stockid string, market int) (err error) {
 	crawler.initCache()
 	//	fmt.Println(crawler.getUrl())
 	//	return
+	if string(time.Now().Format("2006-01-02")) == crawler.start_date {
+		fmt.Println("已经缓存了最新数据")
+		return
+	}
 	if len(crawler.Stockid) == 0 {
 		err = errors.New("stock id should not be none")
 		fmt.Println("start error")
+		time.Sleep(5 * time.Second)
 		return
 	}
-	go crawler.CrawlerTask()
+	crawler.CrawlerTask()
+	time.Sleep(5 * time.Second)
+
 	return
 }
