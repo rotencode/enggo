@@ -129,7 +129,7 @@ func (crawler *Crawler) crawlerSave() {
 }
 func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	c_url, _ := crawler.getUrl()
-	fmt.Println("\n%s\n", c_url)
+	//	fmt.Println("\n%s\n", c_url)
 	timeout := time.Duration(120 * time.Second)
 	client := http.Client{
 		Timeout: timeout,
@@ -145,9 +145,9 @@ func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	}
 
 	str = string(body)
-	fmt.Println("task begin")
+	//	fmt.Println("task begin")
 
-	fmt.Println(body)
+	//	fmt.Println(body)
 	crawler.position += 200
 	return
 }
@@ -179,14 +179,14 @@ func (crawler *Crawler) initCache() (err error) {
 	if len(crawler.cache) == 0 {
 		crawler.start_date = "1990-01-01"
 	} else {
-		var keys []string
-		for k := range crawler.cache {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		fmt.Println("==========>>>>")
-		fmt.Println(keys[len(keys)-1])
-		fmt.Println("==========>>>>")
+		//		var keys []string
+		//		for k := range crawler.cache {
+		//			keys = append(keys, k)
+		//		}
+		//		sort.Strings(keys)
+		//		fmt.Println("==========>>>>")
+		//		fmt.Println(keys[len(keys)-1])
+		//		fmt.Println("==========>>>>")
 	}
 	//	fmt.Println(crawler.cache)
 	return
