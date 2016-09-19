@@ -7,11 +7,12 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
-	"sort"
-	"strconv"
+	"../config"
 
 	"../model"
 )
@@ -36,27 +37,20 @@ type Crawler struct {
 }
 
 func (crawler *Crawler) CrawlerRegexMatch(str string) (hasNext bool) {
-	//	fmt.Println(str)
-	//	defer recover()
 
 	hasNext = false
 	begin := strings.Index(str, "class=\"lm\">")
 	if begin == -1 {
-		//		fmt.Println(str)
 		return false
 	}
 	end := strings.Index(str[begin:], "</table>")
 	if end == -1 {
-		//		fmt.Println(str)
 		return false
 	}
 	pure := str[begin : begin+end]
 
 	items := strings.Split(pure, "<tr>")
 	for _, item := range items {
-		//		fmt.Println("....", item, "---")
-		//r, _ := regexp.Compile(".+<td  class=\"lm\">([d-]+)<td  class=\"rgt\">([d\\.]+)<td  class=\"rgt\">([d\\.]+)<td  class=\"rgt\">([d\\.]+)<td  class=\"rgt\">([d\\.]+)")
-		//r, _ := regexp.Compile(".+<td  class=\"lm\">([\\d-]+)")
 		r, _ := regexp.Compile("class=\"lm\">([\\d-]+)[\\W]+<td class=\"rgt\">([\\d.]+)[\\W]+<td class=\"rgt\">([\\d.]+)[\\W]+<td class=\"rgt\">([\\d.]+)[\\W]+<td class=\"rgt\">([\\d.]+)[\\W]+<td class=\"rgt rm\">([\\d*,]+)")
 		arr := r.FindStringSubmatch(item)
 		fmt.Println("==========>")
@@ -66,8 +60,6 @@ func (crawler *Crawler) CrawlerRegexMatch(str string) (hasNext bool) {
 
 			fmt.Println(arr[1], arr[2], ";", arr[3], ";", arr[4], ";", arr[5], ";", arr[6])
 
-			//			fmt.Println("....", item, "---")
-			// 日期/開市價/最高價/最低價/收市價/成交量
 			var exchange model.ExchangeData
 			exchange.ExchangeDate = arr[1]
 			exchange.PriceFirst, _ = strconv.ParseFloat(arr[2], 32)
@@ -99,9 +91,10 @@ func (crawler *Crawler) getUrl() (url string, err error) {
 	}
 	return
 }
+
 func (crawler *Crawler) crawlerSave() {
 	fmt.Println("crawlerSave", crawler.cache)
-	ofile := string("./data/" + string(crawler.Stockid))
+	ofile := string(config.DataFilePath + string(crawler.Stockid))
 	fout, err := os.Create(ofile)
 	defer fout.Close()
 	if err == nil {
@@ -113,20 +106,16 @@ func (crawler *Crawler) crawlerSave() {
 		sort.Strings(keys)
 
 		for _, k := range keys {
-			//			fmt.Println(crawler.cache[k].ExchangeDate, " ", crawler.cache[k].PriceFirst, " ", crawler.cache[k].PriceHigh, " ", crawler.cache[k].PriceLow, " ", crawler.cache[k].PriceLast, " ", crawler.cache[k].ExchangeAmount)
-			//			fmt.Printf("k=%v, v=%v\n", k, v)
 			str := fmt.Sprintf("%s,%.3f,%.3f,%.3f,%.3f,%d\n", crawler.cache[k].ExchangeDate, crawler.cache[k].PriceFirst, crawler.cache[k].PriceHigh, crawler.cache[k].PriceLow, crawler.cache[k].PriceLast, crawler.cache[k].ExchangeAmount)
 			fmt.Println(str)
 			fout.WriteString(str)
-			//			fout.WriteString(fmt.Sprintln("",crawler.cache[k].ExchangeDate, " ", crawler.cache[k].PriceFirst, " ", crawler.cache[k].PriceHigh, " ", crawler.cache[k].PriceLow, , " ", crawler.cache[k].PriceLast, " ", crawler.cache[k].ExchangeAmount))
-			//			fout.WriteString(fmt.Sprintln(crawler.cache[k].ExchangeDate, " ", crawler.cache[k].PriceFirst, " ", crawler.cache[k].PriceHigh, " ", crawler.cache[k].PriceLow, , " ", crawler.cache[k].PriceLast, " ", crawler.cache[k].ExchangeAmount)
 		}
 		fmt.Sprintln("%v")
 	} else {
 		fmt.Print("错误", err)
 	}
-
 }
+
 func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	c_url, _ := crawler.getUrl()
 	//	fmt.Println("\n%s\n", c_url)
@@ -145,17 +134,9 @@ func (crawler *Crawler) CrawlerRequest() (str string, err error) {
 	}
 
 	str = string(body)
-	//	fmt.Println("task begin")
 
-	//	fmt.Println(body)
 	crawler.position += 200
 	return
-}
-func (crawler *Crawler) CrawlerInitCache() {
-	dat, _ := ioutil.ReadFile("./buffer.txt")
-
-	str := string(dat)
-	fmt.Println(str)
 }
 func (crawler *Crawler) CrawlerTask() {
 	for {
@@ -175,20 +156,18 @@ func (crawler *Crawler) CrawlerTask() {
 //func ParseCSVToMap(filename string, items *map[string]model.ExchangeData) {
 
 func (crawler *Crawler) initCache() (err error) {
-	ParseCSVToMap("./data/"+crawler.Stockid, &crawler.cache)
+	ParseCSVToMap(config.DataFilePath+crawler.Stockid, &crawler.cache)
 	if len(crawler.cache) == 0 {
 		crawler.start_date = "1990-01-01"
 	} else {
-		//		var keys []string
-		//		for k := range crawler.cache {
-		//			keys = append(keys, k)
-		//		}
-		//		sort.Strings(keys)
-		//		fmt.Println("==========>>>>")
-		//		fmt.Println(keys[len(keys)-1])
-		//		fmt.Println("==========>>>>")
+		var keys []string
+		for k := range crawler.cache {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		crawler.start_date = keys[len(keys)-1]
+		fmt.Println(keys[len(keys)-1])
 	}
-	//	fmt.Println(crawler.cache)
 	return
 }
 
@@ -204,8 +183,7 @@ func (crawler *Crawler) Start(stockid string, market int) (err error) {
 	crawler.url_shanghai = "http://www.google.com.hk/finance/historical?q=SHA:%s&startdate=%s&enddate=%s&num=200&start=%d"
 	crawler.url_shenzhen = "http://www.google.com.hk/finance/historical?q=SHE:%s&startdate=%s&enddate=%s&num=200&start=%d"
 	crawler.initCache()
-	//	fmt.Println(crawler.getUrl())
-	//	return
+
 	if string(time.Now().Format("2006-01-02")) == crawler.start_date {
 		fmt.Println("已经缓存了最新数据")
 		return

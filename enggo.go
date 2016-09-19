@@ -8,11 +8,13 @@ import (
 	"bufio"
 	"os"
 
+	"./config"
+	"./model"
 	"./tools"
 )
 
 func shenzhen() {
-	file, _ := os.Open("./markets/shenzhen")
+	file, _ := os.Open(config.MarketsShenZhenFilePath)
 	fscanner := bufio.NewScanner(file)
 	for fscanner.Scan() {
 		fmt.Println(fscanner.Text())
@@ -23,13 +25,18 @@ func shenzhen() {
 }
 func shanghai() {
 
-	file, _ := os.Open("./markets/shanghai")
+	file, _ := os.Open(config.MarketsShangHaiFilePath)
 	fscanner := bufio.NewScanner(file)
 	for fscanner.Scan() {
 		fmt.Println(fscanner.Text())
-		var crawler tools.Crawler
-		crawler.Start(fscanner.Text(), tools.SHANGHAI)
+		fmt.Println(fscanner.Text())
+		//		var crawler tools.Crawler
+		var arr []model.ExchangeData
+		tools.ParseCsvToArr(config.DataFilePath+fscanner.Text(), &arr)
+		tools.CaculMovingAvg(&arr, 10)
 	}
+
+	//CaculMovingAvg
 	//	 http://www.google.com.hk/finance/historical?q=SHA:600000&startdate=1990-01-02&enddate=2016-09-17&num=200&start=0
 }
 func loadRawData() {
