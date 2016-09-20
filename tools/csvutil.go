@@ -50,11 +50,20 @@ func CsvArrSave(arr *[]model.ExchangeData, stockid string) {
 		//		sort.Strings(keys)
 
 		for _, val := range *arr {
-			str := fmt.Sprintf("%s,%.3f,%.3f,%.3f,%.3f,%d\n", val.ExchangeDate, val.PriceFirst,
-				val.PriceHigh, val.PriceLow,
-				val.PriceLast, val.ExchangeAmount)
-			fmt.Println(str)
-			fout.WriteString(str)
+			if val.MA10 > 0 && val.MA30 > 0 && val.MA60 > 0 && val.MA365 > 0 {
+				str := fmt.Sprintf("%s,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%.3f,%.3f,%.3f\n", val.ExchangeDate, val.PriceFirst,
+					val.PriceHigh, val.PriceLow,
+					val.PriceLast, val.ExchangeAmount,
+					val.MA10, val.MA30, val.MA60, val.MA365)
+				fmt.Println(str)
+				fout.WriteString(str)
+			} else {
+				str := fmt.Sprintf("%s,%.3f,%.3f,%.3f,%.3f,%d\n", val.ExchangeDate, val.PriceFirst,
+					val.PriceHigh, val.PriceLow,
+					val.PriceLast, val.ExchangeAmount)
+				fmt.Println(str)
+				fout.WriteString(str)
+			}
 		}
 		fmt.Sprintln("%v")
 	} else {
