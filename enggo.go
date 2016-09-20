@@ -29,23 +29,42 @@ func shanghai() {
 	fscanner := bufio.NewScanner(file)
 	for fscanner.Scan() {
 		fmt.Println(fscanner.Text())
-		fmt.Println(fscanner.Text())
-		//		var crawler tools.Crawler
-		var arr []model.ExchangeData
-		tools.ParseCsvToArr(config.DataFilePath+fscanner.Text(), &arr)
-		tools.CaculMovingAvg(&arr, 10)
+		var crawler tools.Crawler
+		crawler.Start(fscanner.Text(), tools.SHANGHAI)
 	}
-
-	//CaculMovingAvg
-	//	 http://www.google.com.hk/finance/historical?q=SHA:600000&startdate=1990-01-02&enddate=2016-09-17&num=200&start=0
 }
 func loadRawData() {
-	//	go shenzhen()
+	go shenzhen()
 	go shanghai()
 }
+
+//清洗某一个数据项
+func dataWash(stockid string) {
+	fmt.Println(config.DataFilePath + stockid)
+	var arr []model.ExchangeData
+	tools.ParseCsvToArr(config.DataFilePath+stockid, &arr)
+	tools.CaculMovingAvg(&arr)
+	tools.CsvArrSave(&arr, stockid)
+}
+
+//数据清洗
+func dataClean() {
+	file, _ := os.Open(config.MarketsShenZhenFilePath)
+	fscanner := bufio.NewScanner(file)
+	for fscanner.Scan() {
+		go dataWash(fscanner.Text())
+	}
+	file, _ = os.Open(config.MarketsShangHaiFilePath)
+	fscanner = bufio.NewScanner(file)
+	for fscanner.Scan() {
+		go dataWash(fscanner.Text())
+	}
+}
+
 func main() {
 	fmt.Println("enggo start", string(time.Now().Format("2006-01-02")))
-	loadRawData()
+	//	loadRawData()
+	dataClean()
 	for {
 		time.Sleep(100 * time.Second)
 	}
